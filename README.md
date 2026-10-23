@@ -8,11 +8,11 @@ An interactive proof-of-concept digital kiosk prototype designed for modern smar
 
 ## 📌 Project Overview
 
-Urban public transit often suffers from unpredictable arrival times and a lack of real-time crowd transparency at bus stops. The **Beacon-Node Smart Bus Stop Kiosk** solves this by combining checkpoint tracking, convex speed blending ($70\%$ live + $30\%$ historical data), and transparent seat occupancy indicators—promoting public transit usage in next-generation smart townships and reducing ETA error variance by 75%.
+Urban public transit often suffers from unpredictable arrival times and a lack of real-time crowd transparency at bus stops. The **Beacon-Node Smart Bus Stop Kiosk** solves this by combining checkpoint tracking, convex speed blending (70% live + 30% historical data), and transparent seat occupancy indicators—promoting public transit usage in next-generation smart townships and reducing ETA error variance by 75%.
 
 ### Key Features
 - 🗺️ **Live Map & Real Road Routing:** Displays real driving routes powered by OSRM and Leaflet.js mapping along Jalan Sultan Azlan Shah towards the USM Main Gate.
-- ⏱️ **True-ETA Algorithmic Engine:** Blends live checkpoint speeds with historical traffic baselines and queue delays to maintain high-accuracy arrival predictions ($\pm 1.2$ mins).
+- ⏱️ **True-ETA Algorithmic Engine:** Blends live checkpoint speeds with historical traffic baselines and queue delays to maintain high-accuracy arrival predictions 
 - 🪑 **Seat Occupancy Telemetry:** Tracks actual seating metrics based on standard Rapid Penang single-deck bus capacity (35 seats).
 - 📱 **Smart Township Kiosk UI:** Designed with a dark-mode, high-contrast dashboard for public display terminals.
 
@@ -22,10 +22,9 @@ Urban public transit often suffers from unpredictable arrival times and a lack o
 
 Instead of relying on lagging cloud GPS, Beacon-Node calculates arrival times using a checkpoint-based convex speed blending model combined with live queue telemetry:
 
-$$\text{ETA} = \left( \frac{\text{Distance}_{\text{remaining}}}{0.7 \cdot v_{\text{live}} + 0.3 \cdot v_{\text{historical}}} \right) + \text{Queue\_Delay}$$
 
-- **$70\%$ Live Speed ($v_{\text{live}}$):** Reacts instantly to current bus telemetry between checkpoints.
-- **$30\%$ Historical Speed ($v_{\text{historical}}$):** Anchors predictions against recurring traffic bottlenecks (e.g., rush hour peaks).
+- **70% Live Speed:** Reacts instantly to current bus telemetry between checkpoints.
+- **30% Historical Speed:** Anchors predictions against recurring traffic bottlenecks (e.g., rush hour peaks).
 - **Queue Delay:** Adds dynamic dwell time based on passenger boarding telemetry, cutting error variance down from $\pm 6.5$ mins to $\pm 1.2$ mins.
 
 ---
