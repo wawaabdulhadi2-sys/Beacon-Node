@@ -25,7 +25,7 @@ Instead of relying on lagging cloud GPS, Beacon-Node calculates arrival times us
 
 - **70% Live Speed:** Reacts instantly to current bus telemetry between checkpoints.
 - **30% Historical Speed:** Anchors predictions against recurring traffic bottlenecks (e.g., rush hour peaks).
-- **Queue Delay:** Adds dynamic dwell time based on passenger boarding telemetry, cutting error variance down from $\pm 6.5$ mins to $\pm 1.2$ mins.
+- **Queue Delay:** Adds dynamic dwell time based on passenger boarding telemetry, cutting error variance down.
 
 ---
 
