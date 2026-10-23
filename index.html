@@ -172,7 +172,7 @@
       <p style="font-size: 0.8rem; color: #bae6fd;">Bayan Lepas ⇄ USM Main Gate ⇄ Weld Quay</p>
       
       <div class="eta-box">
-        <div class="eta-label">Estimated Arrival</div>
+        <div class="eta-label">Estimated Arrival (True-ETA)</div>
         <div class="eta-time" id="eta-display">-- mins</div>
       </div>
 
@@ -229,7 +229,7 @@
     // 2. Initialize Real Map centered on USM Penang
     const map = L.map('map', { zoomControl: true }).setView([5.3480, 100.3045], 14);
 
-   // 3. FREE OPEN MAP TILES (No API key required)
+    // 3. FREE OPEN MAP TILES (No API key required)
     L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '© OpenStreetMap France | © OpenStreetMap contributors'
@@ -246,7 +246,25 @@
     let realRoutePath = [];
     let currentStep = 0;
 
-    // 6. Fetch REAL Road Route from OSRM Routing API
+    // 6. BeaconNode Simulation Calculation Engine (Converted from Python)
+    function beaconNodeSimulation(remainingDistance, timeA, timeB, historicalPeak, PWaiting, alpha = 0.7) {
+      const distanceAB = 500; // meters
+      const timeDiffAB = timeB - timeA; // seconds
+      const speedAB = distanceAB / timeDiffAB; // meters per second
+
+      const blendedSpeed = (alpha * speedAB) + ((1 - alpha) * historicalPeak); // meters per second
+      const travelTime = remainingDistance / blendedSpeed; // seconds
+      const queueDelay = PWaiting * 3; // seconds
+      const totalETA = travelTime + queueDelay; 
+      const finalSpeed_kmh = blendedSpeed * 3.6;
+
+      return [
+        Number((totalETA / 60).toFixed(1)), 
+        Number(finalSpeed_kmh.toFixed(1))
+      ];
+    }
+
+    // 7. Fetch REAL Road Route from OSRM Routing API
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startBusCoords[1]},${startBusCoords[0]};${usmGateCoords[1]},${usmGateCoords[0]}?overview=full&geometries=geojson`;
 
     fetch(osrmUrl)
@@ -269,7 +287,7 @@
         document.getElementById('bus-status').innerText = "Route Error";
       });
 
-    // 7. GPS Movement Engine following the fetched road path
+    // 8. GPS Movement Engine utilizing the BeaconNode Simulation Model
     function startRealTrackingSimulation() {
       const stepInterval = Math.max(1, Math.floor(realRoutePath.length / 20));
 
@@ -285,15 +303,25 @@
           const percentRemaining = remainingSteps / totalSteps;
 
           const distanceKm = (percentRemaining * 2.8).toFixed(1);
-          const etaMinutes = Math.ceil(percentRemaining * 6);
+          const remainingDistanceMeters = parseFloat(distanceKm) * 1000;
+
+          // Call your custom Python-to-JS calculation logic here
+          const [etaMinutes, finalSpeedKmh] = beaconNodeSimulation(
+            Math.max(remainingDistanceMeters, 50), // remainingDistance (min 50m to avoid div by zero)
+            0,                                    // timeA
+            55,                                   // timeB
+            5.56,                                 // historicalPeak (m/s)
+            currentSeated,                        // PWaiting (queue delay count)
+            0.7                                   // alpha
+          );
 
           const etaDisplay = document.getElementById('eta-display');
           const distanceDisplay = document.getElementById('distance-display');
           const statusBadge = document.getElementById('bus-status');
 
           if (remainingSteps > 0) {
-            etaDisplay.innerText = `${etaMinutes} min${etaMinutes > 1 ? 's' : ''}`;
-            distanceDisplay.innerText = `${distanceKm} km away (Jln Sultan Azlan Shah)`;
+            etaDisplay.innerText = `${etaMinutes} mins`;
+            distanceDisplay.innerText = `${distanceKm} km away | Speed: ${finalSpeedKmh} km/h`;
           } else {
             etaDisplay.innerText = "Arriving!";
             distanceDisplay.innerText = "Bus arrived at USM Main Gate";
@@ -306,10 +334,6 @@
           }
         }
       }, 3000);
-    }
-  </script>
-</body>
-</html>
     }
   </script>
 </body>
